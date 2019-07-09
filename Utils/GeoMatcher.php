@@ -29,11 +29,70 @@ class GeoMatcher
             return true;
         }
 
-        if (stristr($ip, $matchPattern)) {
+        if ($this->matchByTwoLetterCountryCode($ip, $matchPattern)) {
+            return true;
+        }
+
+        if ($this->matchByThreeLetterCountryCode($ip, $matchPattern)) {
+            return true;
+        }
+
+        if ($this->matchByTwoLetterContinentCode($ip, $matchPattern)) {
             return true;
         }
 
         return false;
+    }
+
+    public function matchByTwoLetterCountryCode(string $ip, string $matchPattern): bool
+    {
+        if (strlen($matchPattern) !== 2) {
+            return false;
+        }
+
+        if (!function_exists('geoip_country_code_by_name')) {
+            return false;
+        }
+
+        if (strtolower(geoip_country_code_by_name($ip)) !== strtolower($matchPattern)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function matchByThreeLetterCountryCode(string $ip, string $matchPattern): bool
+    {
+        if (strlen($matchPattern) !== 3) {
+            return false;
+        }
+
+        if (!function_exists('geoip_country_code3_by_name')) {
+            return false;
+        }
+
+        if (strtolower(geoip_country_code3_by_name($ip)) !== strtolower($matchPattern)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function matchByTwoLetterContinentCode(string $ip, string $matchPattern): bool
+    {
+        if (strlen($matchPattern) !== 2) {
+            return false;
+        }
+
+        if (!function_exists('geoip_continent_code_by_name')) {
+            return false;
+        }
+
+        if (strtolower(geoip_continent_code_by_name($ip)) !== strtolower($matchPattern)) {
+            return false;
+        }
+
+        return true;
     }
 }
 
