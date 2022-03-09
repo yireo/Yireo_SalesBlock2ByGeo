@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Remove PHP dep from composer
 
+## [2.0.2] - 9 March 2021
+### Fixed
+- Broken namespace dependencies
+
 ## [2.0.1] - 29 July 2020
 ### Added
 - Magento 2.4 compatibility
