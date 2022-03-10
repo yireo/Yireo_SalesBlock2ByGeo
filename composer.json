@@ -18,7 +18,8 @@
   "require": {
     "magento/module-customer": "^101.0|^102.0|^103.0",
     "magento/module-quote": "^101.0",
-    "yireo/magento2-salesblock2": "^2.0"
+    "yireo/magento2-salesblock2": "^2.0",
+    "ext-geoip": "*"
   },
   "autoload": {
     "psr-4": {

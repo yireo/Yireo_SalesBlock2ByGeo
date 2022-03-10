@@ -53,7 +53,8 @@ class GeoMatcher
             return false;
         }
 
-        if (strtolower(geoip_country_code_by_name($ip)) !== strtolower($matchPattern)) {
+        $countryCode = geoip_country_code_by_name($ip);
+        if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
             return false;
         }
 

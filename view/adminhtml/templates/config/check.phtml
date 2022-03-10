@@ -1,0 +1,9 @@
+<?php declare(strict_types=1);
+
+/** @var \Yireo\SalesBlock2ByGeo\Block\Adminhtml\System\Config\Check $block */
+?>
+<?php foreach ($block->getRequiredFunctions() as $requiredFunction): ?>
+    Function <code><?= /* @noEscape */ $requiredFunction ?></code>:
+    <?= /* @noEscape */ $block->hasPhpFunction($requiredFunction) ? 'Yes' : 'No' ?>
+<br/>
+<?php endforeach; ?>
