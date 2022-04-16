@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
  * Yireo SalesBlock2ByGeo for Magento
  *
@@ -8,14 +9,12 @@
  * @license     Open Source License (OSL v3)
  */
 
-declare(strict_types=1);
-
 namespace Yireo\SalesBlock2ByGeo\Matcher;
 
 use Yireo\SalesBlock2\Api\MatcherInterface;
 use Yireo\SalesBlock2\Exception\NoMatchException;
 use Yireo\SalesBlock2\Helper\Data;
-use Yireo\SalesBlock2\Match\Match;
+use Yireo\SalesBlock2\Match\RuleMatch;
 use Yireo\SalesBlock2ByGeo\Utils\CurrentIp;
 use Yireo\SalesBlock2ByGeo\Utils\GeoMatcher;
 
@@ -82,10 +81,10 @@ class Matcher implements MatcherInterface
 
     /**
      * @param string $matchString
-     * @return Match
+     * @return RuleMatch
      * @throws NoMatchException
      */
-    public function match(string $matchString): Match
+    public function match(string $matchString): RuleMatch
     {
         $matchStrings = $this->helper->stringToArray($matchString);
         $currentIp = $this->currentIp->getValue();
@@ -97,7 +96,7 @@ class Matcher implements MatcherInterface
 
             $message = sprintf('Matched location with %s', $matchString);
 
-            $match = new Match($message);
+            $match = new RuleMatch($message);
             $match->setVariables(['geo' => $currentIp]);
             return $match;
         }
