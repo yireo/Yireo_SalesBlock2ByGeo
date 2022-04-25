@@ -2,7 +2,11 @@
   "name": "yireo/magento2-salesblock2-by-geo",
   "license": "OSL-3.0",
   "type": "magento2-module",
+<<<<<<< HEAD
   "version": "2.0.3",
+=======
+  "version": "2.1.0",
+>>>>>>> cf4f08ec3fe69f1daf471811013b24c2cf1d8f10
   "homepage": "https://www.yireo.com/software/magento-extensions/salesblock2",
   "description": "Block transactions based on geo matching",
   "keywords": [
@@ -18,8 +22,12 @@
   "require": {
     "magento/module-customer": "^101.0|^102.0|^103.0",
     "magento/module-quote": "^101.0",
+<<<<<<< HEAD
     "yireo/magento2-salesblock2": "^2.0",
     "ext-geoip": "*"
+=======
+    "yireo/magento2-salesblock2": "^2.2"
+>>>>>>> cf4f08ec3fe69f1daf471811013b24c2cf1d8f10
   },
   "autoload": {
     "psr-4": {
