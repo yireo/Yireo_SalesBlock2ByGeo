@@ -11,6 +11,7 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
+use Magento\Framework\Filesystem\DriverInterface;
 use Yireo\SalesBlock2ByGeo\Config\Config;
 use GeoIp2\Database\Reader;
 
@@ -20,15 +21,26 @@ use GeoIp2\Database\Reader;
  */
 class GeoMatcher
 {
-    private Config $config;
-
+    /**
+     * @var Config
+     */
+    private $config;
+    
+    /**
+     * @var DriverInterface
+     */
+    private $driver;
+    
     /**
      * @param Config $config
+     * @param DriverInterface $driver
      */
     public function __construct(
-        Config $config
+        Config $config,
+        DriverInterface $driver
     ) {
         $this->config = $config;
+        $this->driver = $driver;
     }
 
     /**
@@ -73,7 +85,7 @@ class GeoMatcher
         }
 
         $database = $this->config->getCountryDatabase();
-        if (!empty($database) && is_file($database)) {
+        if (!empty($database) && $this->driver->isFile($database)) {
             $reader = new Reader($database);
             $record = $reader->country($ip);
             $countryCode = $record->country->isoCode;
@@ -122,4 +134,3 @@ class GeoMatcher
         return true;
     }
 }
-

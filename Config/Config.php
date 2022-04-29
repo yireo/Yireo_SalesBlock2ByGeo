@@ -6,12 +6,17 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class Config
 {
-    private ScopeConfigInterface $scopeConfig;
-
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+    
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
     }
 
