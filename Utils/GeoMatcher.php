@@ -11,12 +11,26 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
+use Yireo\SalesBlock2ByGeo\Config\Config;
+use GeoIp2\Database\Reader;
+
 /**
  * Class GeoMatcher
  * @package Yireo\SalesBlock2ByGeo\Utils
  */
 class GeoMatcher
 {
+    private Config $config;
+
+    /**
+     * @param Config $config
+     */
+    public function __construct(
+        Config $config
+    ) {
+        $this->config = $config;
+    }
+
     /**
      * @param string $ip
      * @param string $matchPattern
@@ -49,13 +63,26 @@ class GeoMatcher
             return false;
         }
 
-        if (!function_exists('geoip_country_code_by_name')) {
-            return false;
+        if (function_exists('geoip_country_code_by_name')) {
+            $countryCode = geoip_country_code_by_name($ip);
+            if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
+                return false;
+            }
+
+            return true;
         }
 
-        $countryCode = geoip_country_code_by_name($ip);
-        if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
-            return false;
+        $database = $this->config->getCountryDatabase();
+        if (!empty($database) && is_file($database)) {
+            $reader = new Reader($database);
+            $record = $reader->country($ip);
+            $countryCode = $record->country->isoCode;
+
+            if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
+                return false;
+            }
+
+            return true;
         }
 
         return true;

@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-<<<<<<< HEAD
+## [2.1.0] - 16 April 2022
+### Fixed
+- Remove PHP dep from composer
+- PHP 8 compatibility (and therefore Magento 2.4.4)
+
 ## [2.0.3] - 10 March 2021
 ### Added
 - Add admin setting to check for GeoIP
@@ -14,12 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Removed unneeded module version
-=======
-## [2.1.0] - 16 April 2022
-### Fixed
-- Remove PHP dep from composer
-- PHP 8 compatibility (and therefore Magento 2.4.4)
->>>>>>> cf4f08ec3fe69f1daf471811013b24c2cf1d8f10
 
 ## [2.0.2] - 9 March 2021
 ### Fixed

@@ -24,3 +24,8 @@ sales by geolocation. Within the **Match** field, you can one or more of the fol
 - A three-letter identifier for a country ([ref](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))
 
 Multiple entries are to be separated by commas.
+
+### GeoIP support
+You either need to install GeoIP support into your PHP installation (usually by installing a PHP extension `ext-geoip`) or you need to add GeoIP databases on your system and configure this extension to use them. For installing the PHP extension, refer to your PHP installation. Please note that the GeoIP extension might no longer be available for your PHP version.
+
+As for the Geo databases, register for an account with Maxmind and download the database (`*.mmdb`) for either cities or countries or both. Upload them some where on your server and configure this extension in the Magento Admin Panel to point to that path.
