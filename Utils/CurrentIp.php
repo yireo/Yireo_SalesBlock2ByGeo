@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 /**
  * Yireo SalesBlock2ByGeo for Magento
@@ -11,21 +11,33 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
-/**
- * Class CurrentIp
- * @package Yireo\SalesBlock2ByGeo\Utils
- */
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+
 class CurrentIp
 {
     /**
      * @var string
      */
     private $ip = '';
-
+    
     /**
-     * @param $ip
+     * @var RemoteAddress
      */
-    public function setIp($ip)
+    private $remoteAddress;
+    
+    /**
+     * @param RemoteAddress $remoteAddress
+     */
+    public function __construct(
+        RemoteAddress $remoteAddress
+    ) {
+        $this->remoteAddress = $remoteAddress;
+    }
+    
+    /**
+     * @param string $ip
+     */
+    public function setIp(string $ip)
     {
         $this->ip = $ip;
     }
@@ -41,14 +53,8 @@ class CurrentIp
             return $this->ip;
         }
 
-        $ip = $_SERVER['REMOTE_ADDR'];
+        $this->ip = $this->remoteAddress->getRemoteAddress();
 
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
-
-        $this->ip = $ip;
-
-        return (string) $this->ip;
+        return (string)$this->ip;
     }
 }
