@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 10 August 2022
+### Fixed
+- Fix incompatible driver interface
+
 ## [2.1.0] - 16 April 2022
 ### Fixed
 - Remove PHP dep from composer

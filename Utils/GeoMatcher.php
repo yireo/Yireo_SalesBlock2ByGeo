@@ -11,6 +11,8 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\DriverInterface;
 use Yireo\SalesBlock2ByGeo\Config\Config;
 use GeoIp2\Database\Reader;
@@ -37,10 +39,10 @@ class GeoMatcher
      */
     public function __construct(
         Config $config,
-        DriverInterface $driver
+        Filesystem $filesystem
     ) {
         $this->config = $config;
-        $this->driver = $driver;
+        $this->driver = $filesystem->getDirectoryWrite(DirectoryList::PUB)->getDriver();
     }
 
     /**
