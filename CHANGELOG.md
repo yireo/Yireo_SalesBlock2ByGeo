@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2] - 9 April 2024
+### Fixed
+- Fix PHP8 class renaming
+
 ## [2.1.1] - 10 August 2022
 ### Fixed
 - Fix incompatible driver interface
