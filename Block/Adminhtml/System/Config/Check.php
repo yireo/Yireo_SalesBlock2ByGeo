@@ -8,17 +8,9 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 class Check extends Field
 {
     /**
-     * Override to set a different PHTML template
-     *
-     * @return $this
+     * @var string
      */
-    protected function _prepareLayout()
-    {
-        parent::_prepareLayout();
-        $this->setTemplate('config/check.phtml');
-
-        return $this;
-    }
+    protected $_template = 'Yireo_SalesBlock2ByGeo::config/check.phtml';
 
     /**
      * Override to render the template instead of the regular output
@@ -44,7 +36,7 @@ class Check extends Field
     }
 
     /**
-     * Check if GD supports WebP
+     * Check if a PHP function exists
      *
      * @return bool
      */
