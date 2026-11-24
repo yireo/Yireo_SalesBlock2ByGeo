@@ -11,128 +11,70 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
-use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\DriverInterface;
-use Yireo\SalesBlock2ByGeo\Config\Config;
-use GeoIp2\Database\Reader;
-
-/**
- * Class GeoMatcher
- * @package Yireo\SalesBlock2ByGeo\Utils
- */
 class GeoMatcher
 {
-    /**
-     * @var Config
-     */
-    private $config;
-    
-    /**
-     * @var DriverInterface
-     */
-    private $driver;
-    
-    /**
-     * @param Config $config
-     * @param DriverInterface $driver
-     */
     public function __construct(
-        Config $config,
-        Filesystem $filesystem
+        private readonly GeoLookup $geoLookup,
+        private readonly CountryCodeConverter $countryCodeConverter
     ) {
-        $this->config = $config;
-        $this->driver = $filesystem->getDirectoryWrite(DirectoryList::PUB)->getDriver();
     }
 
     /**
-     * @param string $ip
-     * @param string $matchPattern
-     * @return bool
+     * Supported patterns: an exact IP, a two-letter country code (NL), a three-letter country code (NLD)
+     * or a two-letter continent code with prefix (continent:EU). An unknown location never matches.
      */
     public function match(string $ip, string $matchPattern): bool
     {
+        $matchPattern = trim($matchPattern, " \f\n\r\t\v\x00");
+        if ($ip === '' || $matchPattern === '') {
+            return false;
+        }
+
         if ($ip === $matchPattern) {
             return true;
         }
 
-        if ($this->matchByTwoLetterCountryCode($ip, $matchPattern)) {
-            return true;
+        if (preg_match('/^continent:\s*([a-z]{2})$/i', $matchPattern, $matches)) {
+            return $this->matchByContinentCode($ip, $matches[1]);
         }
 
-        if ($this->matchByThreeLetterCountryCode($ip, $matchPattern)) {
-            return true;
+        if (preg_match('/^[a-z]{2}$/i', $matchPattern)) {
+            return $this->matchByTwoLetterCountryCode($ip, $matchPattern);
         }
 
-        if ($this->matchByTwoLetterContinentCode($ip, $matchPattern)) {
-            return true;
+        if (preg_match('/^[a-z]{3}$/i', $matchPattern)) {
+            return $this->matchByThreeLetterCountryCode($ip, $matchPattern);
         }
 
         return false;
     }
 
-    public function matchByTwoLetterCountryCode(string $ip, string $matchPattern): bool
+    public function matchByTwoLetterCountryCode(string $ip, string $countryCode): bool
     {
-        if (strlen($matchPattern) !== 2) {
-            return false;
-        }
-
-        if (function_exists('geoip_country_code_by_name')) {
-            $countryCode = geoip_country_code_by_name($ip);
-            if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        $database = $this->config->getCountryDatabase();
-        if (!empty($database) && $this->driver->isFile($database)) {
-            $reader = new Reader($database);
-            $record = $reader->country($ip);
-            $countryCode = $record->country->isoCode;
-
-            if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return true;
+        return $this->isEqual($this->geoLookup->lookup($ip)['country'], $countryCode);
     }
 
-    public function matchByThreeLetterCountryCode(string $ip, string $matchPattern): bool
+    public function matchByThreeLetterCountryCode(string $ip, string $countryCode): bool
     {
-        if (strlen($matchPattern) !== 3) {
+        $iso2Code = $this->countryCodeConverter->toIso2($countryCode);
+        if ($iso2Code === '') {
             return false;
         }
 
-        if (!function_exists('geoip_country_code3_by_name')) {
-            return false;
-        }
-
-        if (strtolower(geoip_country_code3_by_name($ip)) !== strtolower($matchPattern)) {
-            return false;
-        }
-
-        return true;
+        return $this->matchByTwoLetterCountryCode($ip, $iso2Code);
     }
 
-    public function matchByTwoLetterContinentCode(string $ip, string $matchPattern): bool
+    public function matchByContinentCode(string $ip, string $continentCode): bool
     {
-        if (strlen($matchPattern) !== 2) {
+        return $this->isEqual($this->geoLookup->lookup($ip)['continent'], $continentCode);
+    }
+
+    private function isEqual(string $value, string $pattern): bool
+    {
+        if ($value === '' || strlen($pattern) !== 2) {
             return false;
         }
 
-        if (!function_exists('geoip_continent_code_by_name')) {
-            return false;
-        }
-
-        if (strtolower(geoip_continent_code_by_name($ip)) !== strtolower($matchPattern)) {
-            return false;
-        }
-
-        return true;
+        return strtoupper($value) === strtoupper($pattern);
     }
 }
