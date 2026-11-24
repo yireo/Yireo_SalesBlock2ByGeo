@@ -2,13 +2,13 @@
     "module_name": "Yireo_SalesBlock2ByGeo",
     "composer_name": "yireo/magento2-salesblock2-by-geo",
     "sequence": [
-        "Magento_Customer",
+        "Magento_Backend",
+        "Magento_Config",
         "Magento_Directory",
-        "Magento_Quote",
         "Magento_Store",
         "Magento_Ui",
         "Yireo_SalesBlock2"
     ],
     "phpcs_severity": "6",
-    "phpstan_level": "1"
+    "phpstan_level": "2"
 }
