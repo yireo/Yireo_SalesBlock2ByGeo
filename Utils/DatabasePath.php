@@ -6,12 +6,14 @@ use InvalidArgumentException;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Filesystem\DriverInterface;
 
 class DatabasePath
 {
     public function __construct(
-        private readonly Filesystem $filesystem
+        private readonly Filesystem $filesystem,
+        private readonly File $driver
     ) {
     }
 
@@ -35,9 +37,8 @@ class DatabasePath
             throw new InvalidArgumentException('The GeoIP database file must have the extension .mmdb');
         }
 
-        $directory = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR);
-        $driver = $directory->getDriver();
-        $varDirectory = rtrim($directory->getAbsolutePath(), '/');
+        $driver = $this->driver;
+        $varDirectory = rtrim($this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath(), '/');
         if (str_starts_with($path, '/')) {
             if (!str_starts_with($path, $varDirectory . '/')) {
                 throw new InvalidArgumentException('The GeoIP database file must be located in the var/ folder');

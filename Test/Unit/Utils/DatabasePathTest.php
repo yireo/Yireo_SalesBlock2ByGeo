@@ -62,7 +62,7 @@ class DatabasePathTest extends TestCase
             'wrong extension' => ['geoip/country.txt'],
             'missing file' => ['geoip/missing.mmdb'],
             'symlink outside var' => ['geoip/link.mmdb'],
-            'null byte' => ["geoip/country.mmdb\0"],
+            'null byte' => ["geoip/country\0.mmdb"],
             'backslash' => ['geoip\\country.mmdb'],
             'stream wrapper' => ['phar://geoip/country.mmdb'],
         ];
@@ -79,11 +79,10 @@ class DatabasePathTest extends TestCase
     {
         $directory = $this->createMock(ReadInterface::class);
         $directory->method('getAbsolutePath')->willReturn($this->rootDir . '/var/');
-        $directory->method('getDriver')->willReturn(new File());
 
         $filesystem = $this->createMock(Filesystem::class);
         $filesystem->method('getDirectoryRead')->willReturn($directory);
 
-        return new DatabasePath($filesystem);
+        return new DatabasePath($filesystem, new File());
     }
 }
