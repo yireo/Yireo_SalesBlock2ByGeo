@@ -14,74 +14,39 @@ namespace Yireo\SalesBlock2ByGeo\Matcher;
 use Yireo\SalesBlock2\Api\MatcherInterface;
 use Yireo\SalesBlock2\Exception\NoMatchException;
 use Yireo\SalesBlock2\Helper\Data;
+use Yireo\SalesBlock2\Logger\Debugger;
 use Yireo\SalesBlock2\RuleMatch\RuleMatch;
 use Yireo\SalesBlock2ByGeo\Utils\CurrentIp;
+use Yireo\SalesBlock2ByGeo\Utils\GeoLookup;
 use Yireo\SalesBlock2ByGeo\Utils\GeoMatcher;
 
-/**
- * Class Matcher
- * @package Yireo\SalesBlock2ByGeo\Matcher
- */
 class Matcher implements MatcherInterface
 {
-    /**
-     * @var CurrentIp
-     */
-    private $currentIp;
-
-    /**
-     * @var GeoMatcher
-     */
-    private $geoMatcher;
-
-    /**
-     * @var Data
-     */
-    private $helper;
-
-    /**
-     * Matcher constructor.
-     * @param CurrentIp $currentIp
-     * @param GeoMatcher $geoMatcher
-     * @param Data $helper
-     */
     public function __construct(
-        CurrentIp $currentIp,
-        GeoMatcher $geoMatcher,
-        Data $helper
+        private readonly CurrentIp $currentIp,
+        private readonly GeoMatcher $geoMatcher,
+        private readonly GeoLookup $geoLookup,
+        private readonly Data $helper,
+        private readonly Debugger $debugger
     ) {
-        $this->currentIp = $currentIp;
-        $this->geoMatcher = $geoMatcher;
-        $this->helper = $helper;
     }
 
-    /**
-     * @return string
-     */
     public function getCode(): string
     {
         return 'geo';
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return 'Geo location';
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return 'Match by geo location';
     }
 
     /**
-     * @param string $matchString
-     * @return RuleMatch
      * @throws NoMatchException
      */
     public function match(string $matchString): RuleMatch
@@ -94,10 +59,13 @@ class Matcher implements MatcherInterface
                 continue;
             }
 
-            $message = sprintf('Matched location with %s', $matchString);
+            $country = $this->geoLookup->lookup($currentIp)['country'];
+            $this->debugger->debug(
+                sprintf('IP %s (country "%s") matched geo pattern %s', $currentIp, $country, $matchString)
+            );
 
-            $match = new RuleMatch($message);
-            $match->setVariables(['geo' => $currentIp]);
+            $match = new RuleMatch((string)__('Sales are not available in your region'));
+            $match->setVariables(['ip' => $currentIp, 'country' => $country]);
             return $match;
         }
 

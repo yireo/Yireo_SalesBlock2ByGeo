@@ -2,67 +2,91 @@
 
 namespace Yireo\SalesBlock2ByGeo\Test\Integration\Frontend;
 
-use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\MutableScopeConfigInterface;
 use Magento\Framework\Exception\NotFoundException;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\TestFramework\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Yireo\SalesBlock2\Helper\Rule;
 use Yireo\SalesBlock2\RuleMatch\RuleMatch;
 use Yireo\SalesBlock2\Test\Integration\RuleProvider;
+use Yireo\SalesBlock2ByGeo\Utils\CurrentIp;
+use Yireo\SalesBlock2ByGeo\Utils\GeoLookup;
 
+/**
+ * @magentoAppArea frontend
+ * @magentoAppIsolation enabled
+ * @magentoDbIsolation enabled
+ */
 class RuleHelperTest extends TestCase
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
+    private const GB_IP = '81.2.69.160';
+    private const PRIVATE_IP = '192.168.1.1';
 
-    /**
-     * Setup dependencies
-     */
+    private ObjectManager $objectManager;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->objectManager = Bootstrap::getObjectManager();
+
+        $geoLookup = $this->createMock(GeoLookup::class);
+        $geoLookup->method('lookup')->willReturnCallback(
+            fn (string $ip) => $ip === self::GB_IP
+                ? ['country' => 'GB', 'continent' => 'EU']
+                : ['country' => '', 'continent' => '']
+        );
+        $this->objectManager->addSharedInstance($geoLookup, GeoLookup::class);
+        $this->objectManager->get(MutableScopeConfigInterface::class)->setValue('salesblock/settings/enabled', 1);
     }
 
     /**
-     * @magentoDataFixture Magento/Customer/_files/customer.php
-     * @magentoAppIsolation enabled
-     * @magentoDbIsolation enabled
+     * @return array<string, array{string, string, bool}>
      */
-    public function testFindRuleWithAtLeastOneRuleThatMatchesByEmail()
+    public static function getRuleData(): array
     {
-        /** @var Session $customerSession */
-        $customerSession = $this->objectManager->get(Session::class);
-        $customerSession->loginById(1);
-        $customer = $customerSession->getCustomer();
+        return [
+            'matching country' => [self::GB_IP, 'GB', true],
+            'matching country lowercase' => [self::GB_IP, 'gb', true],
+            'other country' => [self::GB_IP, 'US', false],
+            'matching continent' => [self::GB_IP, 'continent:EU', true],
+            'other continent' => [self::GB_IP, 'continent:NA', false],
+            'continent code without prefix is a country' => [self::GB_IP, 'EU', false],
+            'list with matching country' => [self::GB_IP, 'US, GB', true],
+            'unknown location does not match' => [self::PRIVATE_IP, 'US', false],
+            'unknown location does not match continent' => [self::PRIVATE_IP, 'continent:EU', false],
+            'exact IP' => [self::PRIVATE_IP, self::PRIVATE_IP, true],
+        ];
+    }
 
-        $this->setConfigValue('salesblock/settings/enabled', 1);
-        $this->getRuleProvider()->createRule('geo', 'US', true);
+    /**
+     * @dataProvider getRuleData
+     */
+    public function testFindMatch(string $ip, string $pattern, bool $expectMatch): void
+    {
+        $this->objectManager->get(CurrentIp::class)->setIp($ip);
+        $this->getRuleProvider()->createRule('geo', $pattern, true);
 
-        /** @var Rule $ruleHelper */
         $ruleHelper = $this->objectManager->get(Rule::class);
-        $rules = $ruleHelper->getRules();
-        $this->assertNotEmpty($rules);
+        $this->assertNotEmpty($ruleHelper->getRules());
 
         try {
             $match = $ruleHelper->findMatch();
-            $this->assertInstanceOf(RuleMatch::class, $match);
-        } catch (NotFoundException $e) {
-            $this->fail('No match found: ' . $e->getMessage());
+        } catch (NotFoundException) {
+            $match = null;
         }
+
+        if (!$expectMatch) {
+            $this->assertNull($match);
+            return;
+        }
+
+        $this->assertInstanceOf(RuleMatch::class, $match);
+        $this->assertStringNotContainsString($pattern, $match->getMessage());
     }
 
     private function getRuleProvider(): RuleProvider
     {
         return $this->objectManager->get(RuleProvider::class);
-    }
-
-    private function setConfigValue(string $configPath, $value)
-    {
-        $this->objectManager->get(MutableScopeConfigInterface::class)->setValue($configPath, $value);
     }
 }
