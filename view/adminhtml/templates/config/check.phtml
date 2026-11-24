@@ -1,9 +1,17 @@
 <?php declare(strict_types=1);
 
-/** @var \Yireo\SalesBlock2ByGeo\Block\Adminhtml\System\Config\Check $block */
+use Magento\Framework\Escaper;
+use Yireo\SalesBlock2ByGeo\Block\Adminhtml\System\Config\Check;
+
+/** @var Check $block */
+/** @var Escaper $escaper */
 ?>
+<?= $escaper->escapeHtml(__('GeoIP v2 database')) ?>:
+<?= $escaper->escapeHtml($block->isGeoIp2DatabaseAvailable() ? __('Yes') : __('No')) ?>
+<br/>
 <?php foreach ($block->getRequiredFunctions() as $requiredFunction): ?>
-    Function <code><?= /* @noEscape */ $requiredFunction ?></code>:
-    <?= /* @noEscape */ $block->hasPhpFunction($requiredFunction) ? 'Yes' : 'No' ?>
+    <?= $escaper->escapeHtml(__('GeoIP v1 function')) ?>
+    <code><?= $escaper->escapeHtml($requiredFunction) ?></code>:
+    <?= $escaper->escapeHtml($block->hasPhpFunction($requiredFunction) ? __('Yes') : __('No')) ?>
 <br/>
 <?php endforeach; ?>
