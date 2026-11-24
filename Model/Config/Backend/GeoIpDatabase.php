@@ -23,7 +23,7 @@ class GeoIpDatabase extends Value
      * @param DatabasePath $databasePath
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
-     * @param array $data
+     * @param array<string, mixed> $data
      */
     public function __construct(
         Context $context,

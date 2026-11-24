@@ -17,7 +17,7 @@ class Check extends Field
     /**
      * @param Context $context
      * @param GeoLookup $geoLookup
-     * @param array $data
+     * @param array<string, mixed> $data
      */
     public function __construct(
         Context $context,
