@@ -10,5 +10,5 @@
         "Yireo_SalesBlock2"
     ],
     "phpcs_severity": "6",
-    "phpstan_level": "2"
+    "phpstan_level": "5"
 }
