@@ -3,6 +3,8 @@
 namespace Yireo\SalesBlock2ByGeo\Test\Integration\Frontend;
 
 use Magento\Framework\App\Config\MutableScopeConfigInterface;
+use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
@@ -28,7 +30,9 @@ class RuleHelperTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->objectManager = Bootstrap::getObjectManager();
+        $objectManager = Bootstrap::getObjectManager();
+        $this->assertInstanceOf(ObjectManager::class, $objectManager);
+        $this->objectManager = $objectManager;
 
         $geoLookup = $this->createMock(GeoLookup::class);
         $geoLookup->method('lookup')->willReturnCallback(
@@ -83,6 +87,18 @@ class RuleHelperTest extends TestCase
 
         $this->assertInstanceOf(RuleMatch::class, $match);
         $this->assertStringNotContainsString($pattern, $match->getMessage());
+    }
+
+    public function testSpoofedForwardedForHeaderIsIgnored(): void
+    {
+        /** @var HttpRequest $request */
+        $request = $this->objectManager->get(RequestInterface::class);
+        $server = $request->getServer();
+        $server->set('REMOTE_ADDR', self::GB_IP);
+        $server->set('HTTP_X_FORWARDED_FOR', '8.8.8.8');
+        $request->setServer($server);
+
+        $this->assertSame(self::GB_IP, $this->objectManager->create(CurrentIp::class)->getValue());
     }
 
     private function getRuleProvider(): RuleProvider

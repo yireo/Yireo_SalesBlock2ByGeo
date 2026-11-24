@@ -12,6 +12,7 @@
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
 use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\ObjectManager\ResetAfterRequestInterface;
 use Yireo\SalesBlock2ByGeo\Config\Config;
 
@@ -20,7 +21,7 @@ class CurrentIp implements ResetAfterRequestInterface
     private string $ip = '';
 
     public function __construct(
-        private readonly HttpRequest $request,
+        private readonly RequestInterface $request,
         private readonly Config $config
     ) {
     }
@@ -49,7 +50,7 @@ class CurrentIp implements ResetAfterRequestInterface
      */
     private function detectIp(): string
     {
-        $remoteAddress = $this->normalize((string)$this->request->getServer('REMOTE_ADDR'));
+        $remoteAddress = $this->normalize($this->getServerValue('REMOTE_ADDR'));
         if ($remoteAddress === '') {
             return '';
         }
@@ -59,7 +60,7 @@ class CurrentIp implements ResetAfterRequestInterface
             return $remoteAddress;
         }
 
-        $forwardedFor = (string)$this->request->getServer('HTTP_X_FORWARDED_FOR');
+        $forwardedFor = $this->getServerValue('HTTP_X_FORWARDED_FOR');
         $forwardedIps = array_reverse(explode(',', $forwardedFor));
         foreach ($forwardedIps as $forwardedIp) {
             $forwardedIp = $this->normalize($forwardedIp);
@@ -73,6 +74,15 @@ class CurrentIp implements ResetAfterRequestInterface
         }
 
         return $remoteAddress;
+    }
+
+    private function getServerValue(string $name): string
+    {
+        if (!$this->request instanceof HttpRequest) {
+            return '';
+        }
+
+        return (string)$this->request->getServer($name);
     }
 
     private function normalize(string $ip): string
