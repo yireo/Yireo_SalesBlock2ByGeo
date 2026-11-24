@@ -25,18 +25,33 @@ There are no further steps to take. The `Yireo_SalesBlock2` module automatically
 
 ### Usage
 When creating a rule within the SalesBlock extension, this submodule adds a new geolocation rule to block
-sales by geolocation. Within the **Match** field, you can one or more of the following values:
+sales by geolocation. Within the **Match** field, you can add one or more of the following values:
 
-- A two-letter identifier for a continent ([ref](https://www.php.net/manual/en/function.geoip-continent-code-by-name.php))
-- A two-letter identifier for a country ([ref](https://dev.maxmind.com/geoip/legacy/codes/iso3166/))
-- A three-letter identifier for a country ([ref](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))
+- A two-letter country code, like `NL` ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2))
+- A three-letter country code, like `NLD` ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))
+- A two-letter continent code with the prefix `continent:`, like `continent:EU` (`AF`, `AN`, `AS`, `EU`, `NA`, `OC`, `SA`)
+- An exact IP address
 
 Multiple entries are to be separated by commas.
 
-### GeoIP support
-You either need to install GeoIP support into your PHP installation (usually by installing a PHP extension `ext-geoip`) or you need to add GeoIP databases on your system and configure this extension to use them. For installing the PHP extension, refer to your PHP installation. Please note that the GeoIP extension might no longer be available for your PHP version.
+When the location of a visitor can't be determined (for instance a private IP, a missing database or a lookup error), a geo rule does not match. The error is written to the SalesBlock log when logging is enabled.
 
-As for the Geo databases, register for an account with Maxmind and download the database (`*.mmdb`) for either cities or countries or both. Upload them some where on your server and configure this extension in the Magento Admin Panel to point to that path.
+The rule message that is shown to the customer can use the variables `%ip%` and `%country%`. When the rule has no frontend label, a generic message is shown.
+
+#### Upgrading from 2.x
+- A two-letter value is now always a country code. Continent rules need the prefix `continent:` (for instance `continent:EU` instead of `EU`), because some continent codes (`AF`, `AS`, `NA`, `SA`) are also country codes.
+- The message variable `%geo%` has been renamed to `%ip%`.
+- The GeoIP v2 database file must be located in the `var/` folder of Magento, and is configured with a path relative to `var/`.
+
+### GeoIP support
+You either need to add a GeoIP2 database to your system and configure this extension to use it (preferred), or install GeoIP support into your PHP installation (usually by installing the legacy PHP extension `ext-geoip`, which might no longer be available for your PHP version).
+
+For the database, register for an account with MaxMind and download the country database (`GeoLite2-Country.mmdb` or `GeoIP2-Country.mmdb`). Upload it to the `var/` folder of Magento (for instance `var/geoip/GeoLite2-Country.mmdb`) and configure the path relative to `var/` (`geoip/GeoLite2-Country.mmdb`) in the Magento Admin Panel under **Stores > Configuration > Yireo > Yireo SalesBlock**. Do not place the database in the `pub/` folder.
+
+### Client IP detection and reverse proxies
+This module reads the client IP from `REMOTE_ADDR` only. The `X-Forwarded-For` header can be set to any value by a client, so it is ignored by default, even when Magento core is configured to use it.
+
+When Magento runs behind a reverse proxy (load balancer, CDN, Varnish), add the IP addresses of your proxies to the setting **Trusted proxies**. When a request comes from a trusted proxy, the rightmost IP in the `X-Forwarded-For` header that is not a trusted proxy is used as the client IP.
 
 ## Current status
 
