@@ -6,6 +6,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 25 November 2026
+### Added
+- Three-letter country codes and continent rules now work with a GeoIP2 database, which is preferred over GeoIP v1
+- Admin setting for trusted proxies
+- New `%country%` variable for the rule message
+- PHP 8.5 support
+- Documentation for geo patterns, GeoIP2 setup and trusted proxies
+
+### Changed
+- BREAKING: continent rules need the `continent:` prefix (for instance `continent:EU`), a bare two-letter code always means a country
+- BREAKING: the rule message variable `%geo%` is renamed to `%ip%`, and the customer message no longer reveals the matched geo pattern (it is logged instead)
+- BREAKING: `GeoMatcher::matchByTwoLetterContinentCode()` is replaced by `matchByContinentCode()`
+- GeoIP settings are now global only
+- Composer and module dependencies match actual usage (Magento_Customer and Magento_Quote are no longer required)
+
+### Fixed
+- Geo lookup errors (unknown or private IPs, corrupt databases, TypeErrors from the legacy extension) no longer break the cart or checkout
+- An unknown location no longer matches every country rule
+- Error in the database path lookup, caused by calling getDriver() on a read interface
+- Deprecated setTemplate() call in the admin GeoIP check block
+
+### Security
+- Geo rules could be bypassed by faking the X-Forwarded-For header; the client IP now comes from REMOTE_ADDR and X-Forwarded-For is only followed for configured trusted proxies
+- The GeoIP database path is restricted to a readable .mmdb file inside var/ (no path traversal or symlinks out of var/)
+- Output in the admin GeoIP check template is escaped
+
+### Removed
+- PHP 8.1 support
+
 ## [2.1.2] - 9 April 2024
 ### Fixed
 - Fix PHP8 class renaming
