@@ -9,12 +9,6 @@
         "composer-installer",
         "magento"
     ],
-    "authors": [
-        {
-            "name": "Jisse Reitsma (Yireo)",
-            "email": "jisse@yireo.com"
-        }
-    ],
     "require": {
         "ext-pcre": "*",
         "geoip2/geoip2": "^2.13 || ^3.0",
@@ -23,11 +17,12 @@
         "magento/module-config": "^101.2",
         "magento/module-directory": "^100.0",
         "magento/module-store": "^100.1|^101.0",
-        "yireo/magento2-salesblock2": "^2.2",
-        "php": ">=8.2 <8.6"
+        "php": ">=8.2 <8.6",
+        "yireo/magento2-salesblock2": "^2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "yireo/magento2-integration-test-helper": "~0.0"
     },
     "autoload": {
         "psr-4": {
