@@ -10,5 +10,61 @@
         "Yireo_SalesBlock2"
     ],
     "phpcs_severity": "6",
-    "phpstan_level": "7"
+    "phpstan_level": "7",
+    "php_versions": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4"
+    ],
+    "skip_magento_versions": [],
+    "skip_css_utils": false,
+    "modules": [
+        "Magento_AdminNotification",
+        "Magento_Backend",
+        "Magento_Catalog",
+        "Magento_CatalogInventory",
+        "Magento_Checkout",
+        "Magento_Cms",
+        "Magento_Config",
+        "Magento_Csp",
+        "Magento_Customer",
+        "Magento_Directory",
+        "Magento_Eav",
+        "Magento_Indexer",
+        "Magento_MediaGalleryUiApi",
+        "Magento_Payment",
+        "Magento_Quote",
+        "Magento_Rule",
+        "Magento_Sales",
+        "Magento_SalesSequence",
+        "Magento_Store",
+        "Magento_Theme",
+        "Magento_Ui",
+        "Magento_Variable",
+        "Yireo_SalesBlock2"
+    ],
+    "components": [],
+    "config": [
+        {
+            "path": "salesblock/settings/geoip_country_database",
+            "label": " > GeoIP v2 country database file",
+            "description": ""
+        },
+        {
+            "path": "salesblock/settings/trusted_proxies",
+            "label": " > Trusted proxies",
+            "description": ""
+        },
+        {
+            "path": "salesblock/settings/geoip",
+            "label": " > GeoIP support",
+            "description": ""
+        }
+    ],
+    "tests": {
+        "unit": 11,
+        "integration": 2,
+        "functional": 0
+    }
 }
