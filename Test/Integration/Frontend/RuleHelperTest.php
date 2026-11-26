@@ -4,6 +4,8 @@ namespace Yireo\SalesBlock2ByGeo\Test\Integration\Frontend;
 
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\MutableScopeConfigInterface;
+use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
@@ -11,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Yireo\SalesBlock2\Helper\Rule;
 use Yireo\SalesBlock2\RuleMatch\RuleMatch;
 use Yireo\SalesBlock2\Test\Integration\RuleProvider;
+use Yireo\SalesBlock2ByGeo\Utils\CurrentIp;
 
 class RuleHelperTest extends TestCase
 {
@@ -54,6 +57,18 @@ class RuleHelperTest extends TestCase
         } catch (NotFoundException $e) {
             $this->fail('No match found: ' . $e->getMessage());
         }
+    }
+
+    public function testSpoofedForwardedForHeaderIsIgnored(): void
+    {
+        /** @var HttpRequest $request */
+        $request = $this->objectManager->get(RequestInterface::class);
+        $server = $request->getServer();
+        $server->set('REMOTE_ADDR', '203.0.113.5');
+        $server->set('HTTP_X_FORWARDED_FOR', '8.8.8.8');
+        $request->setServer($server);
+
+        $this->assertSame('203.0.113.5', $this->objectManager->create(CurrentIp::class)->getValue());
     }
 
     private function getRuleProvider(): RuleProvider

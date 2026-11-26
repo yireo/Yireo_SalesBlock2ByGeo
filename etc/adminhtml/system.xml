@@ -19,6 +19,11 @@
                     <label>GeoIP v2 country database file</label>
                     <hint>Needed when not using GeoIP v1 via PHP</hint>
                 </field>
+                <field id="trusted_proxies" type="textarea" translate="label comment" sortOrder="3" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Trusted proxies</label>
+                    <comment>IP addresses of your reverse proxies (load balancer, CDN, Varnish), separated by commas or new lines. The X-Forwarded-For header is only used when a request comes from one of these IPs. Leave empty when Magento is not behind a proxy.</comment>
+                </field>
                 <field id="geoip" translate="label" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>GeoIP v1 PHP support</label>
                     <frontend_model>Yireo\SalesBlock2ByGeo\Block\Adminhtml\System\Config\Check</frontend_model>

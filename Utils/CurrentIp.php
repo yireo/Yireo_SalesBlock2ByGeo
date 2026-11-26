@@ -11,7 +11,9 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Magento\Framework\App\Request\Http as HttpRequest;
+use Magento\Framework\App\RequestInterface;
+use Yireo\SalesBlock2ByGeo\Config\Config;
 
 class CurrentIp
 {
@@ -19,21 +21,29 @@ class CurrentIp
      * @var string
      */
     private $ip = '';
-    
+
     /**
-     * @var RemoteAddress
+     * @var RequestInterface
      */
-    private $remoteAddress;
-    
+    private $request;
+
     /**
-     * @param RemoteAddress $remoteAddress
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @param RequestInterface $request
+     * @param Config $config
      */
     public function __construct(
-        RemoteAddress $remoteAddress
+        RequestInterface $request,
+        Config $config
     ) {
-        $this->remoteAddress = $remoteAddress;
+        $this->request = $request;
+        $this->config = $config;
     }
-    
+
     /**
      * @param string $ip
      */
@@ -49,12 +59,70 @@ class CurrentIp
      */
     public function getValue(): string
     {
-        if (!empty($this->ip)) {
+        if ($this->ip !== '') {
             return $this->ip;
         }
 
-        $this->ip = $this->remoteAddress->getRemoteAddress();
+        return $this->detectIp();
+    }
 
-        return (string)$this->ip;
+    /**
+     * Only trust X-Forwarded-For when the direct peer is a configured trusted proxy
+     *
+     * @return string
+     */
+    private function detectIp(): string
+    {
+        $remoteAddress = $this->normalize($this->getServerValue('REMOTE_ADDR'));
+        if ($remoteAddress === '') {
+            return '';
+        }
+
+        $trustedProxies = $this->config->getTrustedProxies();
+        if (!in_array($remoteAddress, $trustedProxies, true)) {
+            return $remoteAddress;
+        }
+
+        $forwardedFor = $this->getServerValue('HTTP_X_FORWARDED_FOR');
+        $forwardedIps = array_reverse(explode(',', $forwardedFor));
+        foreach ($forwardedIps as $forwardedIp) {
+            $forwardedIp = $this->normalize($forwardedIp);
+            if ($forwardedIp === '') {
+                break;
+            }
+
+            if (!in_array($forwardedIp, $trustedProxies, true)) {
+                return $forwardedIp;
+            }
+        }
+
+        return $remoteAddress;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    private function getServerValue(string $name): string
+    {
+        if (!$this->request instanceof HttpRequest) {
+            return '';
+        }
+
+        return (string)$this->request->getServer($name);
+    }
+
+    /**
+     * @param string $ip
+     * @return string
+     */
+    private function normalize(string $ip): string
+    {
+        $ip = trim($ip, " \f\n\r\t\v\x00");
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return '';
+        }
+
+        return $ip;
     }
 }

@@ -27,4 +27,21 @@ class Config
     {
         return (string)$this->scopeConfig->getValue('salesblock/settings/geoip_country_database');
     }
+
+    /**
+     * @return string[]
+     */
+    public function getTrustedProxies(): array
+    {
+        $value = (string)$this->scopeConfig->getValue('salesblock/settings/trusted_proxies');
+        $proxies = [];
+        foreach ((array)preg_split('/[\s,;]+/', $value) as $proxy) {
+            $proxy = trim((string)$proxy, " \f\n\r\t\v\x00");
+            if (filter_var($proxy, FILTER_VALIDATE_IP) !== false) {
+                $proxies[] = $proxy;
+            }
+        }
+
+        return array_values(array_unique($proxies));
+    }
 }
