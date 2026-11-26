@@ -1,7 +1,7 @@
 schema_version: "1.6.0"
 id: YIREO-SALESBLOCK2-BY-GEO-2026-001
 published: "2026-11-25T00:00:00Z"
-modified: "2026-11-25T00:00:00Z"
+modified: "2026-11-26T00:00:00Z"
 aliases: []
 summary: Geo blocking rules can be bypassed by spoofing the X-Forwarded-For header
 details: >
@@ -9,10 +9,10 @@ details: >
   RemoteAddress class. When Magento was configured to read an alternative header like X-Forwarded-For,
   the leftmost IP of that header was used, which is fully controlled by the client. Any unauthenticated
   visitor could therefore send a fake X-Forwarded-For header with an IP from an allowed country and bypass
-  all geo-based sales block rules. Version 3.0.0 uses REMOTE_ADDR and only walks the X-Forwarded-For chain
-  from the right when the request comes from a proxy listed in the new trusted proxies setting. Users of
-  older versions should upgrade and configure the trusted proxies setting when Magento runs behind a
-  reverse proxy or load balancer.
+  all geo-based sales block rules. Versions 2.1.3 (backport for the 2.x branch) and 3.0.0 use REMOTE_ADDR
+  and only walk the X-Forwarded-For chain from the right when the request comes from a proxy listed in the
+  new trusted proxies setting. Users of older versions should upgrade to 2.1.3 or 3.0.0 and configure the
+  trusted proxies setting when Magento runs behind a reverse proxy or load balancer.
 severity:
   - type: CVSS_V3
     score: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
@@ -24,7 +24,7 @@ affected:
       - type: ECOSYSTEM
         events:
           - introduced: "0"
-          - fixed: "3.0.0"
+          - fixed: "2.1.3"
 references:
   - type: PACKAGE
     url: https://github.com/yireo/Yireo_SalesBlock2ByGeo
