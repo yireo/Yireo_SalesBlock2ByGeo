@@ -3,7 +3,7 @@
 /** @var \Yireo\SalesBlock2ByGeo\Block\Adminhtml\System\Config\Check $block */
 ?>
 <?php foreach ($block->getRequiredFunctions() as $requiredFunction): ?>
-    Function <code><?= /* @noEscape */ $requiredFunction ?></code>:
-    <?= /* @noEscape */ $block->hasPhpFunction($requiredFunction) ? 'Yes' : 'No' ?>
+    <?= $block->escapeHtml(__('Function')) ?> <code><?= $block->escapeHtml($requiredFunction) ?></code>:
+    <?= $block->escapeHtml($block->hasPhpFunction($requiredFunction) ? __('Yes') : __('No')) ?>
 <br/>
 <?php endforeach; ?>
