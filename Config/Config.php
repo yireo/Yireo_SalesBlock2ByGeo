@@ -25,7 +25,10 @@ class Config
      */
     public function getCountryDatabase(): string
     {
-        return (string)$this->scopeConfig->getValue('salesblock/settings/geoip_country_database');
+        return trim(
+            (string)$this->scopeConfig->getValue('salesblock/settings/geoip_country_database'),
+            " \f\n\r\t\v\x00"
+        );
     }
 
     /**

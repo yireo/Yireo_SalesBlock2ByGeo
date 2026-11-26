@@ -14,9 +14,11 @@
     <system>
         <section id="salesblock" translate="label" sortOrder="342" showInDefault="1" showInWebsite="1" showInStore="1">
             <group id="settings">
-                <field id="geoip_country_database" type="text" translate="label" sortOrder="3" showInDefault="1"
+                <field id="geoip_country_database" type="text" translate="label comment" sortOrder="3" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>GeoIP v2 country database file</label>
+                    <backend_model>Yireo\SalesBlock2ByGeo\Model\Config\Backend\GeoIpDatabase</backend_model>
+                    <comment>Path of a MaxMind *.mmdb file, either absolute (for instance /usr/share/GeoIP/GeoLite2-Country.mmdb) or relative to the var/ folder (for instance geoip/GeoLite2-Country.mmdb).</comment>
                     <hint>Needed when not using GeoIP v1 via PHP</hint>
                 </field>
                 <field id="trusted_proxies" type="textarea" translate="label comment" sortOrder="3" showInDefault="1"

@@ -11,9 +11,7 @@
 
 namespace Yireo\SalesBlock2ByGeo\Utils;
 
-use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\DriverInterface;
+use InvalidArgumentException;
 use Yireo\SalesBlock2ByGeo\Config\Config;
 use GeoIp2\Database\Reader;
 
@@ -29,20 +27,20 @@ class GeoMatcher
     private $config;
     
     /**
-     * @var DriverInterface
+     * @var DatabasePath
      */
-    private $driver;
-    
+    private $databasePath;
+
     /**
      * @param Config $config
-     * @param DriverInterface $driver
+     * @param DatabasePath $databasePath
      */
     public function __construct(
         Config $config,
-        Filesystem $filesystem
+        DatabasePath $databasePath
     ) {
         $this->config = $config;
-        $this->driver = $filesystem->getDirectoryWrite(DirectoryList::PUB)->getDriver();
+        $this->databasePath = $databasePath;
     }
 
     /**
@@ -86,17 +84,18 @@ class GeoMatcher
             return true;
         }
 
-        $database = $this->config->getCountryDatabase();
-        if (!empty($database) && $this->driver->isFile($database)) {
-            $reader = new Reader($database);
-            $record = $reader->country($ip);
-            $countryCode = $record->country->isoCode;
-
-            if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
-                return false;
-            }
-
+        try {
+            $database = $this->databasePath->resolve($this->config->getCountryDatabase());
+        } catch (InvalidArgumentException $exception) {
             return true;
+        }
+
+        $reader = new Reader($database);
+        $record = $reader->country($ip);
+        $countryCode = $record->country->isoCode;
+
+        if ($countryCode && strtolower($countryCode) !== strtolower($matchPattern)) {
+            return false;
         }
 
         return true;
